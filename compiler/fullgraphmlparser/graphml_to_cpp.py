@@ -615,13 +615,15 @@ class CppFileWriter:
                         f'shallowHistory[{shallow_history.index}] '
                         '= Q_STATE_CAST(STATE_MACHINE_CAPITALIZED_NAME_'
                         f'{state.id});')
+            deep_history = None
+            while state.parent is not None:
                 #Вот тут генератор, Рома сказал надо тут делать
                 deep_history = self.deep_history.get(state.parent.id)
-                if deep_history is not None:
-                    await self._insert_string(
-                        f'deepHistory[{deep_history.index}] '
-                        '= Q_STATE_CAST(STATE_MACHINE_CAPITALIZED_NAME_'
-                        f'{state.id});')
+            if deep_history is not None:
+                await self._insert_string(
+                    f'deepHistory[{deep_history.index}] '
+                    '= Q_STATE_CAST(STATE_MACHINE_CAPITALIZED_NAME_'
+                    f'{state.id});')
 
             await self._insert_string('            status_ = Q_HANDLED();\n')
             await self._insert_string('\n'.join(['            ' + line for line in state.entry.split('\n')]) + '\n')
