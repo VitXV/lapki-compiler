@@ -185,24 +185,24 @@ class CppFileWriter:
         d_dict: Dict[str, GeneratorHistory] = {}
 
         for d in deep_history:
-            par = d.parent
-            while par is not None:
-                is_exist = d_dict.get(par) is not None
+            deepSave = d
+            while d.parent is not None:
+                is_exist = d_dict.get(d.parent) is not None
                 if is_exist:
                     raise CodeGenerationException(
                         f'У элемента {d.parent} более одной'
                         ' дочерней глубокой истории.'
                     )
-                par = par.parent
-            if par is None:
-                par = 'global'
-            is_exist = d_dict.get(par) is not None
+                d = _getParentNode(d)
+            if d.parent is None:
+                d.parent = 'global'
+            is_exist = d_dict.get(d.parent) is not None
             if is_exist:
                 raise CodeGenerationException(
                     f'У элемента {d.parent} более одной'
                     ' дочерней глубокой истории.'
                 )
-            d_dict[d.parent] = d
+            d_dict[d.parent] = deepSave
 
         return d_dict
 
