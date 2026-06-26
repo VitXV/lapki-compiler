@@ -150,6 +150,19 @@ class BaseParserVertex:
     id: str
     parent: str | None
 
+    def get_parent_node(group_node: dict[str, 'ParserState']) -> dict:
+        
+        if self.parent is None:
+            raise ValueError(
+                f'Элемент {self.id} не имеет родителей'
+            )
+
+        parent_obj = group_node.get(parent_id)
+
+        return {
+            '@id': self.parent,
+            'parent': parent_obj: 
+        }
 
 @dataclass
 class GeneratorFinalVertex(BaseParserVertex):

@@ -193,7 +193,7 @@ class CppFileWriter:
                         f'У элемента {d.parent} более одной'
                         ' дочерней глубокой истории.'
                     )
-                d = _getParentNode(d)
+                d = get_parent_node(d) #найти родителя как ноду
             if d.parent is None:
                 d.parent = 'global'
             is_exist = d_dict.get(d.parent) is not None
