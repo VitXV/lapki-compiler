@@ -179,22 +179,19 @@ class CppFileWriter:
         """
         Глубокая история
 
-        проверка: если есть ещё одна глубокая история ниже по иерархии, то кинуть исключение
+        todo: нужна проверка если есть ещё одна глубокая история ниже по иерархии, то кинуть исключение
         """
-        sh_dict: Dict[str, GeneratorHistory] = {}
+        d_dict: Dict[str, GeneratorHistory] = {}
 
-        for sh in deep_history:
-            if sh.parent is None:
-                sh.parent = 'global'
-            is_exist = sh_dict.get(sh.parent) is not None
+        for d in deep_history:
+            if d.parent is None:
+                d.parent = 'global'
+            is_exist = d_dict.get(d.parent) is not None
             if is_exist:
-                raise CodeGenerationException(
-                    f'У элемента {sh.parent} более одной'
-                    ' дочерней локальной истории.'
-                )
-            sh_dict[sh.parent] = sh
+                pass
+            d_dict[d.parent] = d
 
-        return sh_dict
+        return d_dict
 
     async def _write_unconditional_transition(
         self,
@@ -597,8 +594,14 @@ class CppFileWriter:
                         f'shallowHistory[{shallow_history.index}] '
                         '= Q_STATE_CAST(STATE_MACHINE_CAPITALIZED_NAME_'
                         f'{state.id});')
-                #Вот тут генератор, Рома сказал надо тут делать
-                deep_history = self.deep_history.get(state.parent.id)
+                
+                deep_history = None
+                current = state
+                while current.parent is not None:
+                    deep_history = self.deep_history.get(current.parent.id)
+                    if deep_history is not None:
+                        break
+                    current = current.parent
                 if deep_history is not None:
                     await self._insert_string(
                         f'deepHistory[{deep_history.index}] '
