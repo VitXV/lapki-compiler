@@ -865,13 +865,14 @@ async def parse(xml: str) -> tuple[Dict[StateMachineId, ERROR],
             )
             deep_history, transitions_without_deep_history = (
                 __create_history(
-                    state_machine.deep_history, transitions_without_shallow_history
+                    state_machine.deep_history,
+                    transitions_without_shallow_history
                 )
             )
             final_states = __create_final_states(state_machine.finals)
             all_triggers = __get_all_triggers(
                 list(states_with_parents.values()),
-                transitions_without_deep_history) # Я не уверен
+                     transitions_without_deep_history)
             signals = __get_signals_set(all_triggers)
             states_with_initials = _add_initials_to_states(
                 initial_with_transition, states_with_parents)
