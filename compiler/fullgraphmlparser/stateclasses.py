@@ -1,5 +1,9 @@
 """В этом модуле находятся классы для кодогенератора."""
 
+from compiler.fullgraphmlparser.stateclasses import (
+    ParserState
+)
+
 from typing import (
     List,
     Optional,
@@ -134,14 +138,27 @@ class ChoiceTransition:
 class BaseParserVertex:
     """Базовый класс для всех узлов-псевдосостояний."""
 
-    id: str
+    _id: str
     _parent: str | None
+
+    @property
+    def id(self):
+        """Получить id элемента."""
+        return self._id
 
     @property
     def parent(self):
         """Получить родителя элемента."""
         return self._parent or GLOBAL_STATE
 
+    @staticmethod
+    def get_parents_parent(parent: str | None, states: List[ParserState]) -> str | None:
+        """Функция используется для проверки глубокой истории при компиляции, но в принципе можно ещё куда-нибудь впихнуть в будущем"""
+
+        for history in states:
+            if history.id == parent:
+               return history.parent
+        return None
 
 @dataclass
 class GeneratorFinalVertex(BaseParserVertex):
@@ -192,8 +209,18 @@ class GeneratorHistory(BaseParserVertex):
 
     """
 
-    index: int
-    default_value: str | None = None
+    _index: int
+    _default_value: str | None = None
+
+    @property
+    def index(self):
+        """Получить индекс элемента."""
+        return self._index
+
+    @property
+    def default_value(self):
+        """Получить значение по умолчанию."""
+        return self._default_value
 
 
 @dataclass(config=ConfigDict(arbitrary_types_allowed=True))

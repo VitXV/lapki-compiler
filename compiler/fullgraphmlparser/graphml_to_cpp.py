@@ -94,7 +94,7 @@ class CppFileWriter:
         self.shallow_history = self.__convert_local_history_to_dict(
             state_machine.shallow_history)
         self.deep_history = self.__convert_deep_history_to_dict(
-            state_machine.deep_history)
+            state_machine.deep_history, state_machine.states)
         self.initial_states = state_machine.initial_states
         self.choices = state_machine.choices
         self.final_states = state_machine.final_states
@@ -132,7 +132,8 @@ class CppFileWriter:
     
     def __convert_deep_history_to_dict(
         self,
-        deep_history: List[GeneratorHistory]
+        deep_history: List[GeneratorHistory],
+        states: List[ParserState]
     ) -> Dict[str, GeneratorHistory]:
         """
         Глубокая история
@@ -142,10 +143,23 @@ class CppFileWriter:
         d_dict: Dict[str, GeneratorHistory] = {}
 
         for d in deep_history:
-            is_exist = d_dict.get(d.parent) is not None
+            #deepSave = GeneratorHistory(d.id, d.parent, d.index, d.default_value)
+            par = d.parent
+            while par is not 'global':
+                is_exist = d_dict.get(par) is not None
+                if is_exist:
+                    raise CodeGenerationException(
+                        f'У элемента {par} более одной'
+                        ' дочерней глубокой истории.'
+                    )
+                par = GeneratorHistory.get_parents_parent(par, states)
+            is_exist = d_dict.get(par) is not None
             if is_exist:
-                pass #здесь
-            d_dict[d.parent] = d
+                raise CodeGenerationException(
+                    f'У элемента {par} более одной'
+                    ' дочерней глубокой истории.'
+                )
+            d_dict[par] = d
 
         return d_dict
 
